@@ -1,4 +1,6 @@
-A simple example of using Apache CXF and JAX-RS for REST-ful web services. Just a place to hack around, used for some training and discussion on the Kuali Rice team.
+A simple example of using Spring for REST-ful web services. Just a place to hack around, used for some training and discussion on the Kuali Rice team.
+
+Spring documentation: https://spring.io/guides/gs/rest-service/
 
 # Running the Project
 
