@@ -1,4 +1,4 @@
-package com.westbrain.sandbox.jaxrs.group;
+package com.westbrain.sandbox.spring.rest.group;
 
 /**
  * A simple model representing a group.
@@ -6,7 +6,7 @@ package com.westbrain.sandbox.jaxrs.group;
  * <p>A group has an id, a name, and a description. Groups can also have members, but that is represented by a
  * separate {@link Member} object.</p>
  *
- * @see com.westbrain.sandbox.jaxrs.group.Member
+ * @see com.westbrain.sandbox.spring.rest.group.Member
  *
  * @author Eric Westfall (ewestfal@gmail.com)
  */

@@ -1,6 +1,10 @@
 A simple example of using Spring for REST-ful web services. Just a place to hack around, used for some training and discussion on the Kuali Rice team.
 
-Spring documentation: https://spring.io/guides/gs/rest-service/
+# Spring documentation:
+
+https://spring.io/guides/gs/rest-service/
+https://spring.io/guides/gs/actuator-service/
+http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html
 
 # Running the Project
 
@@ -12,108 +16,97 @@ To launch using maven, run the following:
 mvn spring-boot:run
 ```
 
-To run from an IDE, load the project into your IDE and set up a run configuration for the ```com.westbrain.sandbox.jaxrs.Application``` main class.
+To run from an IDE, load the project into your IDE and set up a run configuration for the ```com.westbrain.sandbox.spring.rest.Application``` main class.
 
 # Using the API
 
-We will use the command line tool ```curl``` to exercise the API. If you also want to have pretty printing, install the ```jq``` command line tool as well.
-
-* http://curl.haxx.se/
-* http://stedolan.github.io/jq/
+We will use the Advanced Rest Client which is a chrome browser plugin to view REST calls
 
 # Get group 1
 
 ```
-curl -D hdr.txt http://localhost:8080/api/v1/groups/1
-cat hdr.txt
-```
-
-# Pretty print group 1
-
-```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1 | jq "."
+http://localhost:8080/groups/1
+Response Status Code:200 OK
 ```
 
 # Get a group that doesn't exist
 
 ```
-curl -D hdr.txt http://localhost:8080/api/v1/groups/500
-cat hdr.txt
+http://localhost:8080/groups/500
+Response Status Code:404 Not Found
 ```
 
 # Get all groups
 
 ```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups | jq "."
+http://localhost:8080/groups
+Response Status Code:200 OK
 ```
 
 # Create a new group
 
 ```
-curl -D hdr.txt -s -H "Content-Type: application/json" -d '{ "name":"KualiRiceTeam", "description":"The gang of awesome Rice developers!" }' http://localhost:8080/api/v1/groups | jq "."
-cat hdr.txt
+http://localhost:8080/groups
+Payload: {"id":23,"name":"Twenty Three","description":"This is a new group twenty three"}
+Response Status Code:201 Created
+Response Headers: Location: http://localhost:8080/groups/23
 ```
 
 # Update a group
 
 ```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/11 | jq "."
-curl -D hdr.txt -X PUT -H "Content-Type: application/json" -d '{ "id":11, "name":"Eleven!", "description":"This is the new group eleven" }' http://localhost:8080/api/v1/groups/11
-cat hdr.txt
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/11 | jq "."
+http://localhost:8080/groups/23/update
+Payload: {"id":23,"name":"Twenty Three","description":"This is an updated group twenty three"}
+Response Status Code:200 OK
 ```
 
 # Delete a group
 
 ```
-curl -D hdr.txt -s -X DELETE http://localhost:8080/api/v1/groups/11
-cat hdr.txt
-curl -D hdr.txt http://localhost:8080/api/v1/groups/11
-cat hdr.txt
+http://localhost:8080/groups/1
+Response Status Code:200 OK
+Response Headers: Location: http://localhost:8080/groups
 ```
 
 # Check the members on group 1
 
 ```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members | jq "."
+http://localhost:8080/groups/1/members
+Response Status Code:200 OK
 ```
 
 # Look at a specific member
 
 ```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members/1 | jq "."
+http://localhost:8080/groups/1/members/1
+Response Status Code:200 OK
 ```
 
 # Add a member to group 1
 
 ```
-curl -D hdr.txt -s -H "Content-Type: application/json" -d '{ "name":"Eric" }' http://localhost:8080/api/v1/groups/1/members | jq "."
-cat hdr.txt
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members | jq "."
+http://localhost:8080/groups/1/members
+Payload: {"name":"Trouble"}
+Response Status Code:201 Created
+Response Headers: Location: http://localhost:8080/groups/1/members/77
 ```
 
 # Update a member on group 1
 
 ```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members | jq "."
-curl -D hdr.txt -X PUT -H "Content-Type: application/json" -d '{ "id":1, "name":"NewPerson" }' http://localhost:8080/api/v1/groups/1/members/1
-cat hdr.txt
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members/1 | jq "."
+{"id":"22","name":"Jennie PUT"}
+http://localhost:8080/groups/3/members/22
+Payload: {"id":"22","name":"Jennie PUT"}
+Response Status Code:200 OK
 ```
 
 # Delete a member on group 1
 
 ```
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members | jq "."
-curl -D hdr.txt -s -X DELETE http://localhost:8080/api/v1/groups/1/members/1
-cat hdr.txt
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members | jq "."
-curl -D hdr.txt -s http://localhost:8080/api/v1/groups/1/members/1 | jq "."
-cat hdr.txt
+http://localhost:8080/groups/1/members/22
+Response Status Code:200 OK
+Response Headers: Location: http://localhost:8080/groups/1/members
 ```
 
 
 
-https://spring.io/guides/gs/actuator-service/
-
-http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html

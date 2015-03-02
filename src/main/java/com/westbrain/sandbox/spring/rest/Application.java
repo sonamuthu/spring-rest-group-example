@@ -1,4 +1,4 @@
-package com.westbrain.sandbox.jaxrs;
+package com.westbrain.sandbox.spring.rest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

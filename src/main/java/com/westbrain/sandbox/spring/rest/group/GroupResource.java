@@ -1,9 +1,8 @@
-package com.westbrain.sandbox.jaxrs.group;
+package com.westbrain.sandbox.spring.rest.group;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -15,7 +14,7 @@ import java.io.IOException;
  * A resource implementation which provides a REST-ful, JSON-based API to the groups resource and it's members
  * sub resource.
  *
- * <p>Leverages standard JAX-RS annotations for defining the API.</p>
+ * <p>Leverages standard Spring annotations for defining the API.</p>
  *
  * @author Eric Westfall (ewestfal@gmail.com)
  */
@@ -81,7 +80,7 @@ public class GroupResource {
 //    }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public @ResponseBody void deleteGroup(@PathVariable("id") Long id, HttpServletResponse response) throws IOException {
+    public void deleteGroup(@PathVariable("id") Long id, HttpServletResponse response)  {
         Group removedGroup = null;
         if (id != null) {
             removedGroup = repository.delete(id);
@@ -89,7 +88,9 @@ public class GroupResource {
         if (removedGroup == null) {
             throw new DoesNotExistException();
         } else {
-            response.sendRedirect("/groups");
+            String location = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
+
+            response.setHeader("Location",location + "/groups");
         }
     }
 
@@ -103,48 +104,47 @@ public class GroupResource {
     }
 
     @RequestMapping(value="/{id}/members/{memberId}", method = RequestMethod.GET)
-    public Member getGroupMemberById(@PathVariable("id") Long id, @PathVariable("memberId") Long memberId) {
+    public @ResponseBody Member getGroupMemberById(@PathVariable("id") Long id, @PathVariable("memberId") Long memberId) {
         Member member = repository.findMember(id, memberId);
         if (member == null) {
             throw new DoesNotExistException();
         }
         return member;
     }
+
     @RequestMapping(value="/{id}/members",method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-      public void addMember(@PathVariable("id") Long id, Member member,HttpServletResponse response) {
+    public void addMember(@PathVariable("id") Long id, @RequestBody Member member,HttpServletResponse response) {
         if (member == null) {
             throw new BadRequestException();
         }
         Member savedMember = repository.saveMember(id, member);
 
         String location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .pathSegment("{id}","members","{memberId}").buildAndExpand(id, savedMember.getId())
+                .pathSegment("{memberId}").buildAndExpand(savedMember.getId())
                 .toUriString();
 
         response.setHeader("Location",location);
 
     }
 
-//    @PUT
-//    @Path("/{id}/members/{memberId}")
-//    public Response updateMember(@PathParam("id") Long id, @PathParam("memberId") Long memberId, Member member) {
-//        if (repository.findOne(id) == null) {
-//            return notFound();
-//        }
-//        if (repository.findMember(id, memberId) == null) {
-//            return notFound();
-//        }
-//        if (member == null || !Objects.equal(member.getId(), memberId)) {
-//            return badRequest();
-//        }
-//        if (member.getId() == null) {
-//            // make sure we have the proper id set before we update
-//            member.setId(memberId);
-//        }
-//        repository.saveMember(id, member);
-//        return Response.ok().build();
-//    }
+    @RequestMapping(value = "/{id}/members/{memberId}", method = RequestMethod.PUT)
+    public @ResponseBody void updateMember(@PathVariable("id") Long id, @PathVariable("memberId") Long memberId,@RequestBody Member member) {
+        if (repository.findOne(id) == null) {
+            throw new DoesNotExistException();
+        }
+        if (repository.findMember(id, memberId) == null) {
+            throw new DoesNotExistException();
+        }
+        if (member == null || !memberId.equals(member.getId())) {
+            throw new BadRequestException();
+        }
+        if (member.getId() == null) {
+            // make sure we have the proper id set before we update
+            member.setId(memberId);
+        }
+        repository.saveMember(id, member);
+    }
 //
 //    @POST
 //    @Path("/{id}/members/{memberId}")
@@ -152,20 +152,23 @@ public class GroupResource {
 //        // TODO: implement ability to perform a partial update via POST
 //        return notFound();
 //    }
-//
-//    @DELETE
-//    @Path("/{id}/members/{memberId}")
-//    public Response deleteMember(@PathParam("id") Long id, @PathParam("memberId") Long memberId) {
-//        Member removedMember = null;
-//        if (id != null && memberId != null) {
-//            removedMember = repository.deleteMember(id, memberId);
-//        }
-//        if (removedMember == null) {
-//            return notFound();
-//        } else {
-//            return Response.noContent().build();
-//        }
-//    }
+
+    @RequestMapping(value = "/{id}/members/{memberId}", method = RequestMethod.DELETE)
+    public void deleteMember(@PathVariable("id") Long id, @PathVariable("memberId") Long memberId,
+                                           HttpServletResponse response) {
+        Member removedMember = null;
+        if (id != null && memberId != null) {
+            removedMember = repository.deleteMember(id, memberId);
+        }
+        if (removedMember == null) {
+            throw new DoesNotExistException();
+        } else {
+            String location = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
+
+            response.setHeader("Location",location + "/groups/"+id+"/members");
+
+        }
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)

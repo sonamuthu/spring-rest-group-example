@@ -1,4 +1,4 @@
-package com.westbrain.sandbox.jaxrs.group;
+package com.westbrain.sandbox.spring.rest.group;
 
 /**
  * A simple model representing a single member of a group.
